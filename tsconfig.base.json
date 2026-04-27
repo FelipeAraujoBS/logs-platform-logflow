@@ -5,6 +5,7 @@
     "strict": true,
     "declaration": true,
     "outDir": "./dist",
-    "types": ["node"]
+    "types": ["node"],
+    "esModuleInterop": true
   }
 }
