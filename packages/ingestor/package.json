@@ -1,0 +1,6 @@
+{
+  "name": "@log-platform/ingestor",
+  "dependencies": {
+    "@log-platform/shared": "*"
+  }
+}
