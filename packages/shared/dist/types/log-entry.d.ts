@@ -6,7 +6,7 @@ export interface LogEntry {
     service: ServiceInfo;
     message: string;
     timestamp: Date;
-    traceId: string;
-    spanId: string;
+    traceId?: string;
+    spanId?: string;
     metadata?: Record<string, unknown>;
 }

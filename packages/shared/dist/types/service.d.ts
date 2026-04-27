@@ -1,6 +1,6 @@
 export interface ServiceInfo {
     name: string;
     version: string;
-    enviroment: "development" | "staging" | "production";
+    environment: "development" | "staging" | "production";
     host?: string;
 }

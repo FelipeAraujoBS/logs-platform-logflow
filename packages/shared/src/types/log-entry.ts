@@ -7,7 +7,7 @@ export interface LogEntry {
   service: ServiceInfo;
   message: string;
   timestamp: Date;
-  traceId: string; //correlacionar logs de uma mesma requisição
-  spanId: string; // distributed tracing
+  traceId?: string; //correlacionar logs de uma mesma requisição
+  spanId?: string; // distributed tracing
   metadata?: Record<string, unknown>; // dados extras
 }

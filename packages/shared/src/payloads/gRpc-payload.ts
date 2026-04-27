@@ -4,7 +4,7 @@ export interface GrpcLogPayload {
   severity: Severity;
   serviceName: string;
   serviceVersion: string;
-  serviceEnviroment: "development" | "staging" | "production";
+  serviceEnvironment: "development" | "staging" | "production";
   serviceHost?: string;
   message: string;
   timestampMs?: number;
