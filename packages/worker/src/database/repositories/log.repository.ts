@@ -6,16 +6,17 @@ const COLLECTION = "logs";
 export function makeLogRepository(db: Db) {
   return {
     async insertOne(entry: LogEntry): Promise<void> {
+      const { id, ...rest } = entry;
       await db.collection(COLLECTION).insertOne({
-        ...entry,
-        _id: entry.id as any,
+        _id: id as any,
+        ...rest,
       });
     },
 
     async insertMany(entries: LogEntry[]): Promise<void> {
-      const docs = entries.map((entry) => ({
-        ...entry,
-        _id: entry.id as any,
+      const docs = entries.map(({ id, ...rest }) => ({
+        _id: id as any,
+        ...rest,
       }));
       await db.collection(COLLECTION).insertMany(docs);
     },

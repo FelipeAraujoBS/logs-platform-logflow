@@ -5,15 +5,16 @@ const COLLECTION = "logs";
 function makeLogRepository(db) {
     return {
         async insertOne(entry) {
+            const { id, ...rest } = entry;
             await db.collection(COLLECTION).insertOne({
-                ...entry,
-                _id: entry.id,
+                _id: id,
+                ...rest,
             });
         },
         async insertMany(entries) {
-            const docs = entries.map((entry) => ({
-                ...entry,
-                _id: entry.id,
+            const docs = entries.map(({ id, ...rest }) => ({
+                _id: id,
+                ...rest,
             }));
             await db.collection(COLLECTION).insertMany(docs);
         },
