@@ -1,0 +1,37 @@
+<div class="table-container">
+  <div class="loading" *ngIf="loading">Carregando...</div>
+
+  <table *ngIf="!loading && result">
+    <thead>
+      <tr>
+        <th>Timestamp</th>
+        <th>Severidade</th>
+        <th>Serviço</th>
+        <th>Mensagem</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let log of result.data">
+        <td class="timestamp">{{ log.timestamp | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+        <td>
+          <span class="badge" [ngClass]="getSeverityClass(log.severity)">
+            {{ log.severity }}
+          </span>
+        </td>
+        <td class="service">{{ log.service.name }}</td>
+        <td class="message">{{ log.message }}</td>
+      </tr>
+      <tr *ngIf="result.data.length === 0">
+        <td colspan="4" class="empty">Nenhum log encontrado.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pagination" *ngIf="result && result.totalPages > 1">
+    <button (click)="goToPage(result.page - 1)" [disabled]="result.page === 1">←</button>
+    <span>{{ result.page }} / {{ result.totalPages }}</span>
+    <button (click)="goToPage(result.page + 1)" [disabled]="result.page === result.totalPages">
+      →
+    </button>
+  </div>
+</div>

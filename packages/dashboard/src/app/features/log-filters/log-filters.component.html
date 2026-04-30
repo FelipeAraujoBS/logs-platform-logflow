@@ -1,0 +1,29 @@
+<div class="filters">
+  <div class="filter-group">
+    <label>Severidade</label>
+    <select [(ngModel)]="filters.severity">
+      <option [value]="undefined">Todas</option>
+      <option *ngFor="let s of severities" [value]="s">{{ s }}</option>
+    </select>
+  </div>
+
+  <div class="filter-group">
+    <label>Serviço</label>
+    <input type="text" [(ngModel)]="filters.serviceName" placeholder="Nome do serviço" />
+  </div>
+
+  <div class="filter-group">
+    <label>De</label>
+    <input type="datetime-local" [(ngModel)]="filters.startDate" />
+  </div>
+
+  <div class="filter-group">
+    <label>Até</label>
+    <input type="datetime-local" [(ngModel)]="filters.endDate" />
+  </div>
+
+  <div class="filter-actions">
+    <button (click)="applyFilters()">Filtrar</button>
+    <button (click)="clearFilters()">Limpar</button>
+  </div>
+</div>

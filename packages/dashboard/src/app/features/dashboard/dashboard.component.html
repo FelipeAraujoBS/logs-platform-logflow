@@ -1,0 +1,29 @@
+<div class="dashboard">
+  <header class="header">
+    <h1>logflow</h1>
+    <span class="subtitle">Plataforma de Logs e Telemetria</span>
+  </header>
+
+  <section class="realtime" *ngIf="realtimeLogs.length > 0">
+    <h2>Tempo Real</h2>
+    <div class="realtime-list">
+      <div class="realtime-item" *ngFor="let log of realtimeLogs">
+        <span class="badge severity-{{ log.severity.toLowerCase() }}">{{ log.severity }}</span>
+        <span class="realtime-service">{{ log.service.name }}</span>
+        <span class="realtime-message">{{ log.message }}</span>
+        <span class="realtime-time">{{ log.timestamp | date: 'HH:mm:ss' }}</span>
+      </div>
+    </div>
+  </section>
+
+  <app-charts [logs]="result?.data || []"></app-charts>
+
+  <app-log-filters (filtersChanged)="onFiltersChanged($event)"></app-log-filters>
+
+  <div class="table-header">
+    <span class="total" *ngIf="result">{{ result.total }} logs encontrados</span>
+  </div>
+
+  <app-log-table [result]="result" [loading]="loading" (pageChanged)="onPageChanged($event)">
+  </app-log-table>
+</div>

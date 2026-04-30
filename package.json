@@ -5,10 +5,11 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build --workspaces",
-    "start": "npm run dev"
+    "build": "npm run build -w @log-platform/shared && npm run build -w @log-platform/ingestor && npm run build -w @log-platform/worker && npm run build -w @log-platform/query-api",
+    "dev": "concurrently --names \"ingestor,worker,query-api,dashboard\" --prefix-colors \"cyan,green,yellow,magenta\" \"npm run dev -w @log-platform/ingestor\" \"npm run dev -w @log-platform/worker\" \"npm run dev -w @log-platform/query-api\" \"cd packages/dashboard && ng serve\""
   },
   "devDependencies": {
-    "@types/ws": "^8.18.1"
+    "@types/ws": "^8.18.1",
+    "concurrently": "^9.2.1"
   }
 }
