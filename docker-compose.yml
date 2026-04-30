@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   redis:
     image: redis:7-alpine
@@ -31,6 +29,68 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+
+  ingestor:
+    build:
+      context: .
+      dockerfile: packages/ingestor/Dockerfile
+    container_name: logflow-ingestor
+    ports:
+      - "3000:3000"
+      - "50051:50051"
+    environment:
+      HTTP_PORT: 3000
+      GRPC_PORT: 50051
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      dockerfile: packages/worker/Dockerfile
+    container_name: logflow-worker
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      MONGODB_URI: mongodb://admin:admin@mongodb:27017/logflow?authSource=admin
+      MONGODB_DB: logflow
+    depends_on:
+      redis:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+    restart: unless-stopped
+
+  query-api:
+    build:
+      context: .
+      dockerfile: packages/query-api/Dockerfile
+    container_name: logflow-query-api
+    ports:
+      - "3001:3001"
+    environment:
+      HTTP_PORT: 3001
+      MONGODB_URI: mongodb://admin:admin@mongodb:27017/logflow?authSource=admin
+      MONGODB_DB: logflow
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: packages/dashboard/Dockerfile
+    container_name: logflow-dashboard
+    ports:
+      - "80:80"
+    depends_on:
+      - query-api
+    restart: unless-stopped
 
 volumes:
   redis-data:
