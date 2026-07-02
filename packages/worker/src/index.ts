@@ -1,6 +1,11 @@
 import { connectDatabase, disconnectDatabase } from "./database/connection";
 import { makeLogProcessor } from "./processor/log.processor";
 import { makeLogConsumer } from "./consumer/log.consumer";
+import { startMetricsServer } from "./metrics/metrics";
+import { env } from "./config/env";
+import pino from "pino";
+
+const logger = pino({ name: "worker" });
 
 async function main(): Promise<void> {
   try {
@@ -9,23 +14,23 @@ async function main(): Promise<void> {
     const processor = makeLogProcessor(db);
     await processor.initialize();
 
-    makeLogConsumer(db);
+    const worker = makeLogConsumer(db);
 
-    console.log("Worker rodando — aguardando jobs...");
+    startMetricsServer(env.worker.metricsPort);
 
-    process.on("SIGTERM", async () => {
-      console.log("Encerrando worker...");
+    logger.info("Worker rodando — aguardando jobs...");
+
+    const shutdown = async () => {
+      logger.info("Encerrando worker...");
+      await worker.close();
       await disconnectDatabase();
       process.exit(0);
-    });
+    };
 
-    process.on("SIGINT", async () => {
-      console.log("Encerrando worker...");
-      await disconnectDatabase();
-      process.exit(0);
-    });
+    process.on("SIGTERM", shutdown);
+    process.on("SIGINT", shutdown);
   } catch (error) {
-    console.error("Erro ao inicializar o worker:", error);
+    logger.error({ error }, "Erro ao inicializar o worker");
     process.exit(1);
   }
 }

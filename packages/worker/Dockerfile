@@ -17,6 +17,8 @@ RUN npm run build -w @log-platform/worker
 
 FROM node:20-alpine
 
+RUN addgroup -S app && adduser -S app -G app
+
 WORKDIR /app
 
 COPY package*.json ./
@@ -27,6 +29,8 @@ RUN npm install --omit=dev
 
 COPY --from=builder /app/packages/shared/dist ./packages/shared/dist
 COPY --from=builder /app/packages/worker/dist ./packages/worker/dist
+
+USER app
 
 WORKDIR /app/packages/worker
 

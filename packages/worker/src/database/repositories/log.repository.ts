@@ -18,7 +18,7 @@ export function makeLogRepository(db: Db) {
         _id: id as any,
         ...rest,
       }));
-      await db.collection(COLLECTION).insertMany(docs);
+      await db.collection(COLLECTION).insertMany(docs as any);
     },
 
     async createIndexes(): Promise<void> {

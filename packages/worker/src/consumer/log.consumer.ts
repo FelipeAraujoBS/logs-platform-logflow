@@ -2,6 +2,10 @@ import { Worker } from "bullmq";
 import { LogEntry } from "@log-platform/shared";
 import { makeLogProcessor } from "../processor/log.processor";
 import { Db } from "mongodb";
+import { env } from "../config/env";
+import pino from "pino";
+
+const logger = pino({ name: "worker-consumer" });
 
 export function makeLogConsumer(db: Db) {
   const processor = makeLogProcessor(db);
@@ -14,19 +18,23 @@ export function makeLogConsumer(db: Db) {
     },
     {
       connection: {
-        host: process.env.REDIS_HOST ?? "localhost",
-        port: Number(process.env.REDIS_PORT ?? 6379),
+        host: env.redis.host,
+        port: env.redis.port,
       },
-      concurrency: 10,
+      concurrency: env.worker.concurrency,
     }
   );
 
   worker.on("completed", (job) => {
-    console.log(`Job ${job.id} processado com sucesso`);
+    logger.info({ jobId: job.id }, "Job processado com sucesso");
   });
 
   worker.on("failed", (job, error) => {
-    console.error(`Job ${job?.id} falhou:`, error.message);
+    logger.error({ jobId: job?.id, error: error.message }, "Job falhou");
+  });
+
+  worker.on("error", (error) => {
+    logger.error({ error: error.message }, "Erro no worker");
   });
 
   return worker;

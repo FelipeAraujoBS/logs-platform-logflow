@@ -12,6 +12,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    stop_grace_period: 30s
 
   mongodb:
     image: mongo:7
@@ -29,6 +31,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    stop_grace_period: 60s
 
   ingestor:
     build:
@@ -36,34 +40,41 @@ services:
       dockerfile: packages/ingestor/Dockerfile
     container_name: logflow-ingestor
     ports:
-      - "3000:3000"
-      - "50051:50051"
+      - "3100:3000"
+      - "50052:50051"
     environment:
       HTTP_PORT: 3000
       GRPC_PORT: 50051
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      API_KEY: ${API_KEY}
     depends_on:
       redis:
         condition: service_healthy
     restart: unless-stopped
+    stop_grace_period: 30s
 
   worker:
     build:
       context: .
       dockerfile: packages/worker/Dockerfile
     container_name: logflow-worker
+    ports:
+      - "${WORKER_METRICS_PORT:-9090}:9090"
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       MONGODB_URI: mongodb://admin:admin@mongodb:27017/logflow?authSource=admin
       MONGODB_DB: logflow
+      WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-10}
+      WORKER_METRICS_PORT: 9090
     depends_on:
       redis:
         condition: service_healthy
       mongodb:
         condition: service_healthy
     restart: unless-stopped
+    stop_grace_period: 30s
 
   query-api:
     build:
@@ -71,15 +82,18 @@ services:
       dockerfile: packages/query-api/Dockerfile
     container_name: logflow-query-api
     ports:
-      - "3001:3001"
+      - "3101:3001"
     environment:
       HTTP_PORT: 3001
       MONGODB_URI: mongodb://admin:admin@mongodb:27017/logflow?authSource=admin
       MONGODB_DB: logflow
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost,http://localhost:4200}
+      API_KEY: ${API_KEY}
     depends_on:
       mongodb:
         condition: service_healthy
     restart: unless-stopped
+    stop_grace_period: 30s
 
   dashboard:
     build:
@@ -87,10 +101,12 @@ services:
       dockerfile: packages/dashboard/Dockerfile
     container_name: logflow-dashboard
     ports:
-      - "80:80"
+      - "8080:80"
     depends_on:
-      - query-api
+      query-api:
+        condition: service_started
     restart: unless-stopped
+    stop_grace_period: 10s
 
 volumes:
   redis-data:

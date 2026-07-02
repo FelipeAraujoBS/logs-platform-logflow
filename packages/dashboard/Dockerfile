@@ -2,18 +2,22 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY packages/dashboard/package*.json ./
-COPY packages/dashboard/nginx.conf ./nginx.conf
+COPY package*.json ./
+COPY packages/dashboard/package*.json ./packages/dashboard/
 
-RUN npm install
+RUN npm ci
 
-COPY packages/dashboard .
+COPY packages/dashboard ./packages/dashboard
 
-RUN npm run build
+RUN npm run build --prefix packages/dashboard
 
-FROM nginx:alpine
+FROM nginx:1.25-alpine
 
-COPY --from=builder /app/dist/dashboard /usr/share/nginx/html
-COPY --from=builder /app/nginx.conf /etc/nginx/conf.d/default.conf
+RUN addgroup -S app && adduser -S app -G app
+
+COPY --from=builder /app/packages/dashboard/dist/dashboard /usr/share/nginx/html
+COPY --from=builder /app/packages/dashboard/nginx.conf /etc/nginx/conf.d/default.conf
+
+USER app
 
 EXPOSE 80

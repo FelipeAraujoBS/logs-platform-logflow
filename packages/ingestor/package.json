@@ -8,18 +8,23 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@log-platform/shared": "*",
+    "@fastify/cors": "^11.2.0",
+    "@fastify/helmet": "^13.0.2",
+    "@fastify/rate-limit": "^11.1.0",
+    "@fastify/websocket": "^11.2.0",
     "@grpc/grpc-js": "^1.10.0",
     "@grpc/proto-loader": "^0.7.10",
+    "@log-platform/shared": "*",
     "bullmq": "^5.4.0",
-    "fastify": "^4.26.0",
+    "dotenv": "^16.4.5",
+    "fastify": "^5.9.0",
+    "fastify-metrics": "^13.2.1",
     "ioredis": "^5.3.2",
-    "uuid": "^9.0.0",
-    "dotenv": "^16.4.5"
+    "uuid": "^14.0.1"
   },
   "devDependencies": {
-    "@types/uuid": "^9.0.0",
     "@types/node": "^20.0.0",
+    "@types/uuid": "^9.0.0",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.0.0"
   }

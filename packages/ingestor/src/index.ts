@@ -1,5 +1,5 @@
 import { buildServer } from "./http/server";
-import { startGrpcServer } from "./grpc/server";
+import { buildGrpcServer, startGrpcServer } from "./grpc/server";
 import { env } from "./config/env";
 
 async function main(): Promise<void> {
@@ -11,10 +11,21 @@ async function main(): Promise<void> {
       host: "0.0.0.0",
     });
 
-    startGrpcServer();
+    const grpcServer = buildGrpcServer();
+    startGrpcServer(grpcServer);
 
-    console.log(`HTTP server rodando na porta ${env.http.port}`);
-    console.log(`gRPC server rodando na porta ${env.grpc.port}`);
+    app.log.info(`HTTP server rodando na porta ${env.http.port}`);
+    app.log.info(`gRPC server rodando na porta ${env.grpc.port}`);
+
+    const shutdown = async () => {
+      app.log.info("Encerrando ingestor...");
+      await app.close();
+      grpcServer.forceShutdown();
+      process.exit(0);
+    };
+
+    process.on("SIGTERM", shutdown);
+    process.on("SIGINT", shutdown);
   } catch (error) {
     console.error("Erro ao inicializar o ingestor", error);
     process.exit(1);
